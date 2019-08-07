@@ -34,3 +34,4 @@ data/static
 docs/_build/
 xpack
 logs/*
+data/mysql

@@ -5,3 +5,6 @@ data/*
 tmp/*
 django.db
 celerybeat.pid
+.env
+data/mysql*
+data/postgres*
