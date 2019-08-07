@@ -71,6 +71,7 @@ urlpatterns = [
     path('luna/', LunaView.as_view(), name='luna-view'),
     path('i18n/<str:lang>/', I18NView.as_view(), name='i18n-switch'),
     path('settings/', include('settings.urls.view_urls', namespace='settings')),
+    path('oidc/', include('mozilla_django_oidc.urls')),
     # path('api/v2/', include(api_v2_patterns)),
 
     # External apps url

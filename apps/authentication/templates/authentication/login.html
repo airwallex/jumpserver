@@ -70,7 +70,7 @@
                             {{ form.captcha }}
                         </div>
                         <button type="submit" class="btn btn-primary block full-width m-b">{% trans 'Login' %}</button>
-
+                        <a href="{% url 'oidc_authentication_init' %}" class="btn btn-primary block full-width m-b">Login with Google</a>
                         {% if demo_mode %}
                         <p class="text-muted font-bold" style="color: red">
                             Demo账号: admin 密码: admin
