@@ -1,14 +1,22 @@
 version: '3'
 services:
-  backend:
+  nginx:
+    image: nginx:1.15-alpine
+    restart: always
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./default.conf:/etc/nginx/conf.d/default.conf:ro
+
+  jumpserver:
     build:
       context: .
       dockerfile: Dockerfile
     restart: always
     ports:
-      - "18002:18002"
+      - "18002:8080"
     environment:
-      HTTP_LISTEN_PORT: 18002
+      HTTP_LISTEN_PORT: 8080
       DB_ENGINE: mysql
       DB_HOST: mysql
       DB_PORT: 3306
@@ -28,8 +36,8 @@ services:
       OIDC_OP_USER_ENDPOINT: https://openidconnect.googleapis.com/v1/userinfo
       OIDC_RP_SIGN_ALGO: RS256
       OIDC_OP_JWKS_ENDPOINT: https://www.googleapis.com/oauth2/v3/certs
-      LOGIN_REDIRECT_URL: http://localhost:18002
-      LOGOUT_REDIRECT_URL: http://localhost:18002
+      LOGIN_REDIRECT_URL: http://localhost:8080
+      LOGOUT_REDIRECT_URL: http://localhost:8080
     volumes:
       - .:/opt/jumpserver
     depends_on:
@@ -67,3 +75,37 @@ services:
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
       #- REDIS_PASSWORD=secret
+
+  koko:
+    image: registry.airwallex.com/koko:latest
+    ports:
+      - "2222:2222"
+      - "5000:5000"
+    environment:
+      - CORE_HOST=http://jumpserver:8080
+      - BOOTSTRAP_TOKEN=jumpserver
+    depends_on:
+      - jumpserver
+
+  luna:
+    image: luna:1.5.2
+    ports:
+      - 8080
+    environment:
+      - SUB_PATH=luna
+    depends_on:
+      - jumpserver
+
+  node1:
+    image: jdeathe/centos-ssh:centos-7
+    environment:
+      - SSH_PASSWORD_AUTHENTICATION=true
+      - SSH_USER=root
+      - SSH_USER_PASSWORD=root
+
+  node2:
+    image: jdeathe/centos-ssh:centos-7
+    environment:
+      - SSH_PASSWORD_AUTHENTICATION=true
+      - SSH_USER=root
+      - SSH_USER_PASSWORD=root
